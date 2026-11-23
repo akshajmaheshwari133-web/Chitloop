@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS messages(id INTEGER PRIMARY KEY AUTOINCREMENT,from_id
 CREATE INDEX IF NOT EXISTS m_to ON messages(to_id,id);CREATE INDEX IF NOT EXISTS m_from ON messages(from_id,id);`);
 for(const c of ['totp_secret TEXT','totp_on INTEGER DEFAULT 0','totp_last INTEGER DEFAULT 0','recovery TEXT'])try{db.exec('ALTER TABLE users ADD COLUMN '+c)}catch{}
 const QR=require('qrcode');
-const mailer=E.SMTP_HOST?nodemailer.createTransport({host:E.SMTP_HOST,port:+E.SMTP_PORT||587,auth:{user:E.SMTP_USER,pass:E.SMTP_PASS}}):null;
+const mailer=E.SMTP_HOST?nodemailer.createTransport({host:E.SMTP_HOST,port:+E.SMTP_PORT||587,auth:{user:E.SMTP_USER,pass:E.SMTP_PASS},connectionTimeout:10000,greetingTimeout:10000,socketTimeout:15000}):null;
 const sms=(E.TWILIO_SID&&E.TWILIO_TOKEN&&E.TWILIO_FROM)?require('twilio')(E.TWILIO_SID,E.TWILIO_TOKEN):null;
 const bad=(res,c,m,x)=>res.status(c).json({error:m,...x});
 function norm(kind,v){v=String(v||'').trim();if(kind==='email'){v=v.toLowerCase();return /^[^\s@]{1,64}@[^\s@]+\.[^\s@]{2,}$/.test(v)&&v.length<=254?v:null}
